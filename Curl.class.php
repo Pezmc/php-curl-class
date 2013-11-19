@@ -1,6 +1,29 @@
 <?php
+
 class Curl {
+
     const USER_AGENT = 'PHP-Curl-Class/1.0 (+https://github.com/php-curl-class/php-curl-class)';
+
+    public $curl;
+
+    public $error = FALSE;
+    public $error_code = 0;
+    public $error_message = NULL;
+
+    public $curl_error = FALSE;
+    public $curl_error_code = 0;
+    public $curl_error_message = NULL;
+
+    public $http_error = FALSE;
+    public $http_status_code = 0;
+    public $http_error_message = NULL;
+
+    public $request_headers = NULL;
+    public $response_headers = NULL;
+    public $response = NULL;
+    
+    private $_cookies = array();
+    private $_headers = array();
 
     function __construct() {
         if (!extension_loaded('curl')) {
@@ -81,7 +104,7 @@ class Curl {
         curl_close($this->curl);
     }
 
-    function http_build_multi_query($data, $key=NULL) {
+    private function http_build_multi_query($data, $key=NULL) {
         $query = array();
 
         foreach ($data as $k => $value) {
@@ -96,7 +119,7 @@ class Curl {
         return implode('&', $query);
     }
 
-    function _postfields($data) {
+    private function _postfields($data) {
         if (is_array($data)) {
             if (is_array_multidim($data)) {
                 $data = $this->http_build_multi_query($data);
@@ -116,7 +139,7 @@ class Curl {
         return $data;
     }
 
-    function _exec() {
+    private function _exec() {
         $this->response = curl_exec($this->curl);
         $this->curl_error_code = curl_errno($this->curl);
         $this->curl_error_message = curl_error($this->curl);
@@ -145,27 +168,6 @@ class Curl {
     function __destruct() {
         $this->close();
     }
-
-    private $_cookies = array();
-    private $_headers = array();
-
-    public $curl;
-
-    public $error = FALSE;
-    public $error_code = 0;
-    public $error_message = NULL;
-
-    public $curl_error = FALSE;
-    public $curl_error_code = 0;
-    public $curl_error_message = NULL;
-
-    public $http_error = FALSE;
-    public $http_status_code = 0;
-    public $http_error_message = NULL;
-
-    public $request_headers = NULL;
-    public $response_headers = NULL;
-    public $response = NULL;
 }
 
 function is_array_multidim($array) {

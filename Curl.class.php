@@ -25,6 +25,9 @@ class Curl {
     private $_cookies = array();
     private $_headers = array();
 
+    /**
+     * @throws ErrorException
+     */
     function __construct() {
         if (!extension_loaded('curl')) {
             throw new ErrorException('cURL library is not loaded');
@@ -37,34 +40,44 @@ class Curl {
         $this->setopt(CURLOPT_RETURNTRANSFER, TRUE);
     }
 
-    function get($url, $data=array()) {
-        $this->setopt(CURLOPT_URL, $url . '?' . http_build_query($data));
+    /**
+     * @param $url URL to load
+     * @param $params Array of keys to set in the query string
+     * @return boolean Returns true on success, false on failure @see $this->error_message;
+     */
+    function get($url, $params=null) {
+        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params));
         $this->setopt(CURLOPT_HTTPGET, TRUE);
         return $this->_exec();
     }
 
-    function post($url, $data=array()) {
-        $this->setopt(CURLOPT_URL, $url);
+    /**
+     * @param $url URL to load
+     * @param $data Data to post to the URL
+     * @return boolean Returns true on success, false on failure @see $this->error_message;
+     */
+    function post($url, $data=array(), $params=array()) {
+        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params));
         $this->setopt(CURLOPT_POST, TRUE);
         $this->setopt(CURLOPT_POSTFIELDS, $this->_postfields($data));
         return $this->_exec();
     }
 
-    function put($url, $data=array()) {
-        $this->setopt(CURLOPT_URL, $url . '?' . http_build_query($data));
+    function put($url, $params=array()) {
+        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'PUT');
         return $this->_exec();
     }
 
-    function patch($url, $data=array()) {
-        $this->setopt(CURLOPT_URL, $url);
+    function patch($url, $data=array(), $params=array()) {
+        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'PATCH');
         $this->setopt(CURLOPT_POSTFIELDS, $data);
         return $this->_exec();
     }
 
-    function delete($url, $data=array()) {
-        $this->setopt(CURLOPT_URL, $url . '?' . http_build_query($data));
+    function delete($url, $params=array()) {
+        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params)));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'DELETE');
         return $this->_exec();
     }
@@ -92,18 +105,48 @@ class Curl {
         $this->setopt(CURLOPT_COOKIE, http_build_query($this->_cookies, '', '; '));
     }
 
+    /**
+     * @param $option Option to set
+     * @param $value Value to set
+     */
     function setOpt($option, $value) {
         return curl_setopt($this->curl, $option, $value);
     }
 
+    /**
+     * @param bool $on Enable verbosity
+     * Output curl status to STDERR
+     */
     function verbose($on=TRUE) {
         $this->setopt(CURLOPT_VERBOSE, $on);
     }
 
+    /**
+     * Close CURL
+     */
     function close() {
         curl_close($this->curl);
     }
+    
+    /**
+     * @param string $baseURL URL to build from
+     * @param mixed[] $parameters Keys and values for the query string
+     * @return string A contact of the baseURL and a query string of parameters
+     */
+    private function _buildURL($baseURL, $parameters=array()) {
+    	if(empty($parameters))
+    		return $baseURL;
+    	elseif(is_array($parameters)
+    		return '?' . http_build_query($data));
+    	else 
+    		return '?' . $parameters;
+    }
 
+    /**
+     * @param mixed[] $data A (multidomensional) array
+     * @param string $key Key of this element
+     * @return  query string built from multidimensional array
+     */
     private function http_build_multi_query($data, $key=NULL) {
         $query = array();
 
@@ -162,7 +205,7 @@ class Curl {
         $this->http_error_message = $this->error ? (isset($this->response_headers['0']) ? $this->response_headers['0'] : '') : '';
         $this->error_message = $this->curl_error ? $this->curl_error_message : $this->http_error_message;
 
-        return $this->error;
+        return !$this->error;
     }
 
     function __destruct() {

@@ -40,33 +40,33 @@ class Curl {
     function get($url, $data=array()) {
         $this->setopt(CURLOPT_URL, $url . '?' . http_build_query($data));
         $this->setopt(CURLOPT_HTTPGET, TRUE);
-        $this->_exec();
+        return $this->_exec();
     }
 
     function post($url, $data=array()) {
         $this->setopt(CURLOPT_URL, $url);
         $this->setopt(CURLOPT_POST, TRUE);
         $this->setopt(CURLOPT_POSTFIELDS, $this->_postfields($data));
-        $this->_exec();
+        return $this->_exec();
     }
 
     function put($url, $data=array()) {
         $this->setopt(CURLOPT_URL, $url . '?' . http_build_query($data));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'PUT');
-        $this->_exec();
+        return $this->_exec();
     }
 
     function patch($url, $data=array()) {
         $this->setopt(CURLOPT_URL, $url);
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'PATCH');
         $this->setopt(CURLOPT_POSTFIELDS, $data);
-        $this->_exec();
+        return $this->_exec();
     }
 
     function delete($url, $data=array()) {
         $this->setopt(CURLOPT_URL, $url . '?' . http_build_query($data));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'DELETE');
-        $this->_exec();
+        return $this->_exec();
     }
 
     function setBasicAuthentication($username, $password) {
@@ -162,7 +162,7 @@ class Curl {
         $this->http_error_message = $this->error ? (isset($this->response_headers['0']) ? $this->response_headers['0'] : '') : '';
         $this->error_message = $this->curl_error ? $this->curl_error_message : $this->http_error_message;
 
-        return $this->error_code;
+        return $this->error;
     }
 
     function __destruct() {

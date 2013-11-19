@@ -160,9 +160,9 @@ class Curl {
         curl_close($this->curl);
     }
     
-	/**
-	 * Destructor
-	 */
+    /**
+     * Destructor
+     */
     function __destruct() {
     	$this->close();
     }
@@ -201,6 +201,10 @@ class Curl {
         return implode('&', $query);
     }
 
+    /**
+     * @param mixed[] $data A (multidimensional) array of key => values
+     * @return string Query string representing $data
+     */
     private function _postfields($data) {
         if (is_array($data)) {
             if (is_array_multidim($data)) {
@@ -221,6 +225,10 @@ class Curl {
         return $data;
     }
 
+    /**
+     * Run the curl request
+     * @return bool Did this method succeed?
+     */
     private function _exec() {
         $this->response = curl_exec($this->curl);
         $this->curl_error_code = curl_errno($this->curl);

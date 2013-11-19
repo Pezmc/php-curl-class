@@ -184,7 +184,7 @@ class Curl {
     	if(!$encoded)
     		$queryString = urldecode($queryString);
     		
-    	return $baseURL . empty($queryString) ? ('?' . $parameters) : '';
+    	return $baseURL . empty($queryString) ? ('?' . $queryString) : '';
     }
 
     /**

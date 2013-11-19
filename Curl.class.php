@@ -94,7 +94,7 @@ class Curl {
      * @return boolean Returns true on success, false on failure @see $this->error_message;
      */    
     function delete($url, $params=array()) {
-        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params)));
+        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'DELETE');
         return $this->_exec();
     }
@@ -175,10 +175,10 @@ class Curl {
     private function _buildURL($baseURL, $parameters=array()) {
     	if(empty($parameters))
     		return $baseURL;
-    	elseif(is_array($parameters)
-    		return '?' . http_build_query($data));
+    	elseif(is_array($parameters))
+    		return $baseURL . '?' . http_build_query($parameters);
     	else 
-    		return '?' . $parameters;
+    		return $baseURL . '?' . $parameters;
     }
 
     /**

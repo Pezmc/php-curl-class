@@ -45,8 +45,8 @@ class Curl {
      * @param $params Array of keys to set in the query string
      * @return boolean Returns true on success, false on failure @see $this->error_message;
      */
-    function get($url, $params=null) {
-        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params));
+    function get($url, $params=null, $encoded=true) {
+        $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params, $encoded));
         $this->setopt(CURLOPT_HTTPGET, TRUE);
         return $this->_exec();
     }
@@ -170,15 +170,21 @@ class Curl {
     /**
      * @param string $baseURL URL to build from
      * @param mixed[] $parameters Keys and values for the query string
+     * @param bool $encoded Should the parameters be URL encoded?
      * @return string A contact of the baseURL and a query string of parameters
      */
-    private function _buildURL($baseURL, $parameters=array()) {
-    	if(empty($parameters))
-    		return $baseURL;
-    	elseif(is_array($parameters))
-    		return $baseURL . '?' . http_build_query($parameters);
-    	else 
-    		return $baseURL . '?' . $parameters;
+    private function _buildURL($baseURL, $parameters=array(), $encoded = false) {
+    	$queryString = "";
+    	
+    	if(is_array($parameters))
+    		$queryString = http_build_query($parameters); 
+    	elseif(is_string($parameters))
+    		$queryString = $parameters;  
+    	
+    	if(!$encoded)
+    		$queryString = urldecode($queryString);
+    		
+    	return $baseURL . empty($queryString) ? ('?' . $parameters) : '';
     }
 
     /**

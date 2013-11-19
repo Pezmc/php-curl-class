@@ -53,7 +53,8 @@ class Curl {
 
     /**
      * @param $url URL to load
-     * @param $data Data to post to the URL
+     * @param $data Data to POST to the URL
+     * @param $params Array of keys to set in the query string
      * @return boolean Returns true on success, false on failure @see $this->error_message;
      */
     function post($url, $data=array(), $params=array()) {
@@ -63,12 +64,23 @@ class Curl {
         return $this->_exec();
     }
 
+    /**
+     * @param $url URL to load
+     * @param $params Array of keys to set in the query string
+     * @return boolean Returns true on success, false on failure @see $this->error_message;
+     */
     function put($url, $params=array()) {
         $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'PUT');
         return $this->_exec();
     }
 
+    /**
+     * @param $url URL to load
+     * @param $data Data to PATCH to the URL
+     * @param $params Array of keys to set in the query string
+     * @return boolean Returns true on success, false on failure @see $this->error_message;
+     */
     function patch($url, $data=array(), $params=array()) {
         $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'PATCH');
@@ -76,30 +88,50 @@ class Curl {
         return $this->_exec();
     }
 
+    /**
+     * @param $url URL to load
+     * @param $params Array of keys to set in the query string
+     * @return boolean Returns true on success, false on failure @see $this->error_message;
+     */    
     function delete($url, $params=array()) {
         $this->setopt(CURLOPT_URL, $this->_buildURL($url, $params)));
         $this->setopt(CURLOPT_CUSTOMREQUEST, 'DELETE');
         return $this->_exec();
     }
 
+    /**
+     * Use CURLS basic http authentication
+     */
     function setBasicAuthentication($username, $password) {
         $this->setopt(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         $this->setopt(CURLOPT_USERPWD, $username . ':' . $password);
     }
 
+    /**
+     * Set a custom curl HTTP header
+     */
     function setHeader($key, $value) {
         $this->_headers[$key] = $key . ': ' . $value;
         $this->setopt(CURLOPT_HTTPHEADER, array_values($this->_headers));
     }
 
+    /**
+     * @param string $user_agent Set a custom user agent, e.g. 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1'
+     */
     function setUserAgent($user_agent) {
         $this->setopt(CURLOPT_USERAGENT, $user_agent);
     }
-
+    
+	/**
+	 * @param $referrer Set a custom referer e.g. http://google.com
+	 */
     function setReferrer($referrer) {
         $this->setopt(CURLOPT_REFERER, $referrer);
     }
 
+    /**
+     * Add a cookie to the curl request
+     */
     function setCookie($key, $value) {
         $this->_cookies[$key] = $value;
         $this->setopt(CURLOPT_COOKIE, http_build_query($this->_cookies, '', '; '));
@@ -126,6 +158,13 @@ class Curl {
      */
     function close() {
         curl_close($this->curl);
+    }
+    
+	/**
+	 * Destructor
+	 */
+    function __destruct() {
+    	$this->close();
     }
     
     /**
@@ -206,10 +245,6 @@ class Curl {
         $this->error_message = $this->curl_error ? $this->curl_error_message : $this->http_error_message;
 
         return !$this->error;
-    }
-
-    function __destruct() {
-        $this->close();
     }
 }
 
